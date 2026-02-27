@@ -1,0 +1,18 @@
+# Credenciais - NUNCA subir
+sienge_credentials.json
+sharepoint_config.json
+
+# Arquivos gerados pelo script (sobem via Actions)
+*.xlsx
+*.parquet
+*.csv
+
+# Cache e logs
+cache_sienge/
+__pycache__/
+logs/
+log_execucao.txt
+*.pyc
+
+# VS Code
+.vscode/
