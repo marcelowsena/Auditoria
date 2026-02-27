@@ -1,0 +1,9 @@
+========================================== 
+INICIO DA EXECUCAO 
+Data/Hora: 03/11/2025 23:00:02,55 
+========================================== 
+python: can't open file 'C:\\Users\\MarceloSena\\Documents\\Projetos\\Auditoria\\AuditoriaPedidoFinalTable.py': [Errno 2] No such file or directory
+ERRO: Script finalizou com codigo de erro 2 
+========================================== 
+FIM DA EXECUCAO 
+========================================== 

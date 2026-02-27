@@ -1,0 +1,82 @@
+name: Auditoria Sienge → SharePoint
+
+on:
+  # Disparo manual pelo GitHub
+  workflow_dispatch:
+
+  # Agendamento automático: toda segunda-feira às 06:00 (horário de Brasília = 09:00 UTC)
+  schedule:
+    - cron: '0 9 * * 1'
+
+jobs:
+  extrair-e-enviar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      # 1. Checkout do repositório
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Configurar Python
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      # 3. Instalar dependências
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      # 4. Criar sienge_credentials.json a partir dos Secrets
+      - name: Criar credenciais Sienge
+        run: |
+          cat > sienge_credentials.json << 'EOF'
+          {
+            "username": "${{ secrets.SIENGE_USERNAME }}",
+            "password": "${{ secrets.SIENGE_PASSWORD }}"
+          }
+          EOF
+
+      # 5. Criar sharepoint_config.json a partir dos Secrets
+      - name: Criar configuração SharePoint
+        run: |
+          cat > sharepoint_config.json << 'EOF'
+          {
+            "site_url": "${{ secrets.SHAREPOINT_SITE_URL }}",
+            "client_id": "${{ secrets.SHAREPOINT_CLIENT_ID }}",
+            "client_secret": "${{ secrets.SHAREPOINT_CLIENT_SECRET }}",
+            "pasta_destino": "${{ secrets.SHAREPOINT_PASTA_DESTINO }}"
+          }
+          EOF
+
+      # 6. Executar extração do Sienge
+      - name: Extrair dados do Sienge
+        run: python AuditoriaPedidoFinalTable.py
+
+      # 7. Upload: Análise completa
+      - name: Upload análise completa para SharePoint
+        run: python SharepointAuditoria.py Analise_Orcamento_Pedidos.xlsx
+
+      # 8. Upload: Pedidos desautorizados (só sobe se o arquivo existir)
+      - name: Upload pedidos desautorizados para SharePoint
+        run: |
+          if [ -f "Analise_Pedidos_Desautorizados.xlsx" ]; then
+            python SharepointAuditoria.py Analise_Pedidos_Desautorizados.xlsx
+          else
+            echo "Nenhum pedido desautorizado encontrado, arquivo não gerado."
+          fi
+
+      # 9. Salvar artefatos (opcional — fica disponível por 7 dias no GitHub)
+      - name: Salvar artefatos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorios-auditoria-${{ github.run_id }}
+          path: |
+            Analise_Orcamento_Pedidos.xlsx
+            Analise_Pedidos_Desautorizados.xlsx
+            Analise_Orcamento_Pedidos.csv
+          retention-days: 7
+          if-no-files-found: warn
