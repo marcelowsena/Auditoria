@@ -59,15 +59,6 @@ jobs:
       - name: Upload análise completa para SharePoint
         run: python SharepointAuditoria.py Analise_Orcamento_Pedidos.xlsx
 
-      # 8. Upload: Pedidos desautorizados (só sobe se o arquivo existir)
-      - name: Upload pedidos desautorizados para SharePoint
-        run: |
-          if [ -f "Analise_Pedidos_Desautorizados.xlsx" ]; then
-            python SharepointAuditoria.py Analise_Pedidos_Desautorizados.xlsx
-          else
-            echo "Nenhum pedido desautorizado encontrado, arquivo não gerado."
-          fi
-
       # 9. Salvar artefatos (opcional — fica disponível por 7 dias no GitHub)
       - name: Salvar artefatos
         if: always()
