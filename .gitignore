@@ -16,3 +16,11 @@ log_execucao.txt
 
 # VS Code
 .vscode/
+
+# Credentials - nunca commit estes arquivos
+*.credentials.json
+*_credentials.json
+.env
+.env.local
+secrets.json
+
